@@ -1,0 +1,27 @@
+services:
+  nodeapiapp:
+    container_name: nodeapiapp
+    image: node-api-app
+    
+    env_file:
+      - .env
+    
+    ports:
+      - ${APP_API_PORT}:${APP_API_PORT}
+    networks:
+      - passion_st_shared_stk
+      # - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "${APP_WEBSITE_URL}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    build: .
+
+networks:
+  passion_st_shared_stk:
+    external: true
+  # app_network:
+  #   driver: bridge

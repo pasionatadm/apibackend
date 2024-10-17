@@ -9,7 +9,7 @@ services:
     ports:
       - ${APP_API_PORT}:${APP_API_PORT}
     networks:
-      - passion_st_shared_stk
+      - stkcore_shared_stk
       # - app_network
     restart: unless-stopped
     healthcheck:
@@ -21,7 +21,7 @@ services:
     build: .
 
 networks:
-  passion_st_shared_stk:
+  stkcore_shared_stk:
     external: true
   # app_network:
   #   driver: bridge

@@ -5,40 +5,49 @@ import { TypeInput } from "supertokens-node/types";
 import Dashboard from "supertokens-node/recipe/dashboard";
 import UserRoles from "supertokens-node/recipe/userroles";
 import EmailVerification from "supertokens-node/recipe/emailverification";
+import { SMTPService } from "supertokens-node/recipe/emailpassword/emaildelivery";
+import { SMTPService as EmailVerificationSMTPService } from "supertokens-node/recipe/emailverification/emaildelivery";
 
 export function getApiDomain() {
     const apiPort = process.env.APP_API_PORT || 3001;
     const apiUrl = process.env.APP_API_URL || `http://localhost:${apiPort}`;
-    
-    console.log(apiUrl);
-    
     return apiUrl;
 }
 
 export function getWebsiteDomain() {
     const websitePort = process.env.APP_WEBSITE_PORT || 3000;
     const websiteUrl = process.env.APP_WEBSITE_URL || `http://localhost:${websitePort}`;
-    
-    console.log(websiteUrl);
-    
-
     return websiteUrl;
+}
+
+let smtpSettings = {
+    host: process.env.SMT_HOST || "localhost",
+    from: {
+        name: process.env.SMTP_FROM_NAME || "sender",
+        email: process.env.SMTP_FROM_EMAIL || "info@test.com",
+    },
+    port: Number(process.env.SMTP_PORT) || 25,
+    secure: true,
+    // authUsername: "...", // this is optional. In case not given, from.email will be used
+    password: "",
 }
 
 export const SuperTokensConfig: TypeInput = {
     supertokens: {
-        connectionURI: "http://stk:3567/",
+        connectionURI: process.env.CORE_CONNURI || '',
         apiKey: process.env.API_KEYS
     },
     appInfo: {
-        appName: "SuperTokens Demo App",
+        appName: process.env.BE_APPNAME || "Best App",
         apiDomain: getApiDomain(),
         websiteDomain: getWebsiteDomain(),
     },
-    // recipeList contains all the modules that you want to
-    // use from SuperTokens. See the full list here: https://supertokens.com/docs/guides
     recipeList: [
-        EmailPassword.init(),
+        EmailPassword.init({
+            emailDelivery: {
+                service: new SMTPService({smtpSettings})
+            },
+        }),
         ThirdParty.init({
             signInAndUpFeature: {
                 providers: [
@@ -61,6 +70,9 @@ export const SuperTokensConfig: TypeInput = {
         UserRoles.init(),
         EmailVerification.init({
             mode: "REQUIRED", // or "OPTIONAL"
+            emailDelivery: {
+                service: new EmailVerificationSMTPService({smtpSettings})
+            }
         }),
     ],
 };

@@ -1,7 +1,7 @@
 services:
   nodeapiapp:
     container_name: nodeapiapp
-    image: node-api-app
+    # image: node-api-app
     
     env_file:
       - .env
